@@ -15,8 +15,11 @@ public:
 
     const QImage* Execute(const QImage* input);
     virtual void Body(const QImage* input);
-private:
+
+    QString Name();
+protected:
     const QImage* ptr_img = nullptr;
+    QString name;
 };
 
 #endif // MYALGORITHM_H

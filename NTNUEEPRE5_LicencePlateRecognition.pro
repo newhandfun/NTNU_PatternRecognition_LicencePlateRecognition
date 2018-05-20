@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    myalgorithm.cpp
+    myalgorithm.cpp \
+    filterychannel.cpp
 
 HEADERS += \
         mainwindow.h \
-    myalgorithm.h
+    myalgorithm.h \
+    filterychannel.h
 
 FORMS += \
         mainwindow.ui

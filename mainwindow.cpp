@@ -13,18 +13,33 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->menuRecentImage,&QMenu::triggered,this,&MainWindow::ShowImageByMenu);
 
     //algorithms
-    algorithms[0] = &MainWindow::GetY;
-    algorithms[1] = &MainWindow::Histoequailzation;
-    algorithms[2] = &MainWindow::Sobel;
-    algorithms[3] = &MainWindow::Dilation;
-    algorithms[4] = &MainWindow::Erosion;
+    filtersList.append(&MainWindow::GetY);
+    filtersList.append(&MainWindow::Histoequailzation);
+    filtersList.append(&MainWindow::Sobel);
+    filtersList.append(&MainWindow::Dilation);
+    filtersList.append(&MainWindow::Erosion);
+    //and its names
+    filterNamesList.append(QString("Y Channel"));
+    filterNamesList.append(QString("Histo Equailzation"));
+    filterNamesList.append(QString("Sobel"));
+    filterNamesList.append(QString("Dilation"));
+    filterNamesList.append(QString("Erosion"));
+    //and its details
+    detailList.append(&MainWindow::GetYDetail);
+    detailList.append(&MainWindow::GetHEDetail);
+    detailList.append(&MainWindow::GetSobelDetail);
+    detailList.append(&MainWindow::GetDilationDetail);
+    detailList.append(&MainWindow::GetErosionDetail);
 
-    //checkbox
-    cboxList.push_back(ui->cbox_YTrans);
-    cboxList.push_back(ui->cbox_HE);
-    cboxList.push_back(ui->cbox_sobel);
-    cboxList.push_back(ui->cbox_dilation);
-    cboxList.push_back(ui->cbox_erosion);
+    //inital work flow
+    for(int i=0;i<filtersList.count();i++)
+        AddFilter(filtersList[i]);
+
+    //hide detail
+    ui->lbl_detail_1->hide();
+    ui->sbox_detail_1->hide();
+    ui->lbl_detail_2->hide();
+    ui->sbox_detail_2->hide();
 }
 
 MainWindow::~MainWindow()
@@ -72,6 +87,14 @@ void MainWindow::ReadFile()
 void MainWindow::ShowMessage(QString title,QString msg)
 {
     QMessageBox::information(this,title,msg);
+}
+
+void MainWindow::HideDetail()
+{
+    ui->lbl_detail_1->hide();
+    ui->sbox_detail_1->hide();
+    ui->lbl_detail_2->hide();
+    ui->sbox_detail_2->hide();
 }
 
 QImage *MainWindow::CreateOrGetImage(const QString path)
@@ -195,22 +218,26 @@ QImage *MainWindow::Sobel(const QImage *img)
 QImage *MainWindow::Dilation(const QImage *img)
 {
     QImage* new_img = new QImage();
+    QImage* last_img = new QImage();
     *new_img = img->copy();
 
     int width = img->width();
     int height = img->height();
 
-    for(uint times=0;times<dilation_times;times++){
+    int filterSize = dilation_size / 2;
+
+    for(uint times=0;times<dilation_iter;times++){
+        *last_img = new_img->copy();
         for(int w=0;w<width;w++){
             for(int h=0;h<height;h++){
                 int col_old = getColor(new_img,w,h);
                 if(col_old!=0)continue;
-                for(int x_off=-1;x_off<2;x_off++){
-                    for(int y_off=-1;y_off<2;y_off++){
+                for(int x_off=-1*filterSize;x_off<=filterSize;x_off++){
+                    for(int y_off=-1*filterSize;y_off<=filterSize;y_off++){
                         int x = w+x_off;
                         int y = h+y_off;
-                        if(x<0||y<0)continue;
-                        int col_xy = getColor(img,x,y);
+                        if(x<0||y<0||x>=width||y>=height)continue;
+                        int col_xy = getColor(last_img,x,y);
                         if(col_xy!=0){
                             setColor(new_img,w,h,255);
                             break;
@@ -229,21 +256,25 @@ QImage *MainWindow::Erosion(const QImage *img)
 {
     QImage* new_img = new QImage();
     *new_img = img->copy();
+    QImage* last_img = new QImage();
 
     int width = img->width();
     int height = img->height();
 
-    for(uint times=0;times<erosion_times;times++){
+    int filterSize = erosion_size / 2;
+
+    for(uint times=0;times<erosion_iter;times++){
+        *last_img = new_img->copy();
         for(int w=0;w<width;w++){
             for(int h=0;h<height;h++){
                 int col_old = getColor(new_img,w,h);
                 if(col_old==0)continue;
-                for(int x_off=-1;x_off<2;x_off++){
-                    for(int y_off=-1;y_off<2;y_off++){
+                for(int x_off=-1*filterSize;x_off<= filterSize;x_off++){
+                    for(int y_off=-1*filterSize;y_off<=filterSize;y_off++){
                         int x = w+x_off;
                         int y = h+y_off;
-                        if(x<0||y<0)continue;
-                        int col_xy = getColor(img,x,y);
+                        if(x<0||y<0||x>=width||y>=height)continue;
+                        int col_xy = getColor(last_img,x,y);
                         if(col_xy==0){
                             setColor(new_img,w,h,0);
                             break;
@@ -258,6 +289,68 @@ QImage *MainWindow::Erosion(const QImage *img)
     return new_img;
 }
 
+void MainWindow::GetYDetail()
+{
+}
+
+void MainWindow::GetHEDetail()
+{
+}
+
+void MainWindow::GetSobelDetail()
+{
+    ui->lbl_detail_1->show();
+    ui->sbox_detail_1->show();
+    ui->lbl_detail_1->setText("Thresholds");
+    disconnect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),0,0);
+    ui->sbox_detail_1->setMaximum(255);
+    ui->sbox_detail_1->setMinimum(0);
+    ui->sbox_detail_1->setValue(thresholding_value);
+    connect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),this,SLOT(on_threshold_valueChange(int)));
+}
+
+void MainWindow::GetDilationDetail()
+{
+    ui->lbl_detail_1->show();
+    ui->sbox_detail_1->show();
+    ui->lbl_detail_1->setText("Iterations");
+    disconnect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),0,0);
+    ui->sbox_detail_1->setMaximum(20);
+    ui->sbox_detail_1->setMinimum(1);
+    ui->sbox_detail_1->setValue(dilation_iter);
+    connect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),this,SLOT(on_dilation_iter_valueChange(int)));
+    ui->lbl_detail_2->show();
+    ui->sbox_detail_2->show();
+    ui->lbl_detail_2->setText("Kernal Size");
+    disconnect(ui->sbox_detail_2,SIGNAL(valueChanged(int)),0,0);
+    ui->sbox_detail_2->setMaximum(20);
+    ui->sbox_detail_2->setMinimum(1);
+    ui->sbox_detail_2->setValue(dilation_size);
+    connect(ui->sbox_detail_2,SIGNAL(valueChanged(int)),this,SLOT(on_dilation_size_valueChange(int)));
+}
+
+void MainWindow::GetErosionDetail()
+{
+    ui->lbl_detail_1->show();
+    ui->sbox_detail_1->show();
+    ui->lbl_detail_1->setText("Iterations");
+    disconnect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),0,0);
+    ui->sbox_detail_1->setMaximum(10);
+    ui->sbox_detail_1->setMinimum(1);
+    ui->sbox_detail_1->setValue(erosion_iter);
+    connect(ui->sbox_detail_1,SIGNAL(valueChanged(int)),this,SLOT(on_erosion_iter_valueChange(int)));
+    ui->lbl_detail_2->show();
+    ui->sbox_detail_2->show();
+    ui->lbl_detail_2->setText("Kernal Size");
+    disconnect(ui->sbox_detail_2,SIGNAL(valueChanged(int)),0,0);
+    ui->sbox_detail_2->setMaximum(20);
+    ui->sbox_detail_2->setMinimum(1);
+    ui->sbox_detail_2->setValue(erosion_size);
+    connect(ui->sbox_detail_2,SIGNAL(valueChanged(int)),this,SLOT(on_erosion_size_valueChange(int)));
+}
+
+
+
 int MainWindow::getColor(const QImage *img, int w, int h)
 {
     QColor col = img->pixel(w,h);
@@ -266,6 +359,17 @@ int MainWindow::getColor(const QImage *img, int w, int h)
 
 void MainWindow::setColor(QImage* img,int w,int h,int color){
     img->setPixel(w,h,qRgb(color,color,color));
+}
+
+void MainWindow::AddFilter(MainWindow::Filter method)
+{
+    //add list item
+    int index = filtersList.indexOf(method);
+    QListWidgetItem* item =new QListWidgetItem();
+    ui->lwidget_algorithm_stack->addItem(item);
+    ui->lwidget_algorithm_stack->setItemWidget(item,new QLabel(filterNamesList[index]));
+
+    filterStack.append(method);
 }
 
 void MainWindow::ShowImageByMenu(QAction* action)
@@ -281,14 +385,81 @@ void MainWindow::on_btn_do_clicked()
     QImage* img_last = new QImage();
     *img_last = imgCurrent->copy();
     QImage* img_new = nullptr;
-    for(int step=0;step<cboxList.count();step++){
-        if(!cboxList[step]->isChecked())continue;
+    for(int step=0;step<filterStack.count();step++){
         if(img_new!=nullptr){
             delete img_last;
             img_last = img_new;
         }
-        img_new = (this->*algorithms[step])(img_last);
+        img_new = (this->*filterStack[step])(img_last);
     }
     if(img_new==nullptr)
         return;
+    delete img_new;
+}
+
+void MainWindow::on_lwidget_algorithm_stack_itemClicked(QListWidgetItem *item)
+{
+    if(item==nullptr)return;
+    HideDetail();
+    (this->*detailList[ui->lwidget_algorithm_stack->row(item)])();
+}
+
+void MainWindow::on_threshold_valueChange(int value){
+    thresholding_value = value;
+}
+
+void MainWindow::on_dilation_iter_valueChange(int value)
+{
+    dilation_iter = value;
+}
+
+void MainWindow::on_dilation_size_valueChange(int value)
+{
+    dilation_size = value;
+}
+
+void MainWindow::on_erosion_iter_valueChange(int value)
+{
+    erosion_iter = value;
+}
+
+void MainWindow::on_erosion_size_valueChange(int value)
+{
+    erosion_size = value;
+}
+
+
+void MainWindow::on_actionY_Channel_triggered(bool checked)
+{
+    if(checked)
+        return;
+    AddFilter(&MainWindow::GetY);
+}
+
+void MainWindow::on_actionHistogram_Equalization_toggled(bool arg1)
+{
+    if(arg1)
+        return;
+    AddFilter(&MainWindow::Histoequailzation);
+}
+
+void MainWindow::on_actionSobel_triggered(bool checked)
+{
+    if(checked)
+        return;
+    AddFilter(&MainWindow::Sobel);
+}
+
+void MainWindow::on_actionDilation_triggered(bool checked)
+{
+    if(checked)
+        return;
+    AddFilter(&MainWindow::Dilation);
+}
+
+void MainWindow::on_actionErosion_triggered(bool checked)
+{
+    if(checked)
+        return;
+    AddFilter(&MainWindow::Erosion);
 }

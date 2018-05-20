@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>488</width>
-    <height>347</height>
+    <width>585</width>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,100 +32,80 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QToolBox" name="tbox">
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QWidget" name="tboxpage_detail">
-        <attribute name="label">
-         <string>Detail</string>
-        </attribute>
-        <widget class="QWidget" name="verticalLayoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>191</width>
-           <height>221</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="vlayout_detail"/>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="tboxpage_algo" native="true">
-        <property name="whatsThis">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <attribute name="label">
-         <string>Algorithm</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <layout class="QVBoxLayout" name="vlayout_algo">
-           <item>
-            <widget class="QCheckBox" name="cbox_YTrans">
-             <property name="text">
-              <string>Turn To Y Channel</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbox_HE">
-             <property name="text">
-              <string>Histogram Equalization</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbox_sobel">
-             <property name="text">
-              <string>Sobel</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbox_dilation">
-             <property name="text">
-              <string>Dilation</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbox_erosion">
-             <property name="text">
-              <string>Erosion</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btn_do">
-             <property name="text">
-              <string>Execute</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
+      <widget class="QGroupBox" name="tbox">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QSplitter" name="splitter_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget">
+           <layout class="QVBoxLayout" name="vlayout_detail">
+            <item>
+             <widget class="QGroupBox" name="gbox_detail">
+              <property name="title">
+               <string>Detail</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <widget class="QLabel" name="lbl_detail_1">
+                   <property name="text">
+                    <string>TextLabel</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="sbox_detail_1"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QLabel" name="lbl_detail_2">
+                   <property name="text">
+                    <string>TextLabel</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="sbox_detail_2"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QVBoxLayout" name="vlayout_filter">
+            <item>
+             <widget class="QGroupBox" name="gbox_filter">
+              <property name="title">
+               <string>Filter</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QListWidget" name="lwidget_algorithm_stack"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btn_do">
+                 <property name="text">
+                  <string>Execute</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QGraphicsView" name="graphicsView">
        <property name="sizePolicy">
@@ -144,7 +124,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>488</width>
+     <width>585</width>
      <height>21</height>
     </rect>
    </property>
@@ -160,8 +140,19 @@
      <string>RecentImage</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuAdd_Filter">
+    <property name="title">
+     <string>Add Filter</string>
+    </property>
+    <addaction name="actionY_Channel"/>
+    <addaction name="actionHistogram_Equalization"/>
+    <addaction name="actionSobel"/>
+    <addaction name="actionDilation"/>
+    <addaction name="actionErosion"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRecentImage"/>
+   <addaction name="menuAdd_Filter"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -170,6 +161,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_ReadImage">
@@ -183,6 +175,31 @@
   <action name="action_ReadFile">
    <property name="text">
     <string>ReadFile</string>
+   </property>
+  </action>
+  <action name="actionY_Channel">
+   <property name="text">
+    <string>Y Channel</string>
+   </property>
+  </action>
+  <action name="actionHistogram_Equalization">
+   <property name="text">
+    <string>Histogram Equalization</string>
+   </property>
+  </action>
+  <action name="actionSobel">
+   <property name="text">
+    <string>Sobel</string>
+   </property>
+  </action>
+  <action name="actionDilation">
+   <property name="text">
+    <string>Dilation</string>
+   </property>
+  </action>
+  <action name="actionErosion">
+   <property name="text">
+    <string>Erosion</string>
    </property>
   </action>
  </widget>
